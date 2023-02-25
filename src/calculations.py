@@ -27,7 +27,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 			case "esp8266id":
 				chip_id = f"esp{v}"
 			case "sensorId":
-				chip_id = f"gen{v}"
+				chip_id = f"gen_{v}"
 			case "sensordatavalues":
 				sensor_data_values = v
 			case "software_version":
@@ -61,9 +61,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					temperature = float(val)
 				except Exception as e:
 					print(e)
+					temperature = None
 					continue
-				if -50 < temperature > 50:
+				if temperature < -50.0 or temperature > 50.0:
 					log_warn("POST /Send", f"Inconsistent temperature reading of {temperature}! Discarding value!")
+					temperature = None
 					continue
 				fields.update({"temperature": temperature})
 
@@ -72,6 +74,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					pressure = float(val)
 				except Exception as e:
 					print(e)
+					pressure = None
+					continue
+				if pressure < 85000 or pressure > 115000:
+					log_warn("POST /Send", f"Inconsistent pressure reading of {pressure}! Discarding value!")
+					pressure = None
 					continue
 				fields.update({"pressure": pressure})
 
@@ -80,6 +87,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					humidity = float(val)
 				except Exception as e:
 					print(e)
+					humidity = None
+					continue
+				if humidity < 0 or humidity > 100:
+					log_warn("POST /Send", f"Inconsistent humidity reading of {humidity}! Discarding value!")
+					humidity = None
 					continue
 				fields.update({"humidity": humidity})
 
@@ -88,6 +100,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					ds18b20 = float(val)
 				except Exception as e:
 					print(e)
+					ds18b20 = None
+					continue
+				if ds18b20 < -50.0 or ds18b20 > 50.0:
+					log_warn("POST /Send", f"Inconsistent ds18b20 temperature reading of {ds18b20}! Discarding value!")
+					ds18b20 = None
 					continue
 				fields.update({"temperature_ds18b20": ds18b20})
 
@@ -101,6 +118,17 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					print(e)
 					continue
 				fields.update({"signal": signal})
+
+			case "miflora_temperature":
+				fields.update({"flora_temperature": float(val)})
+			case "miflora_moisture":
+				fields.update({"flora_moisture": val})
+			case "miflora_ec":
+				fields.update({"flora_ec": val})
+			case "miflora_lumen":
+				fields.update({"flora_lumen": val})
+			case "miflora_battery":
+				fields.update({"flora_battery": val})
 
 			case _:
 				log_warn("POST /Send", f"Received new sensor type {typ} with value {val}")

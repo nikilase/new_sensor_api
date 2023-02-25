@@ -1,7 +1,9 @@
+# External modules
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
-import logging
+
+# Internal modules
 from src.my_logger import log_info, log_warn, log_error
 from src.calculations import  extract_and_send_sensor_data
 from src.influx import get_latest_data
@@ -20,7 +22,7 @@ app = FastAPI(
 )
 
 
-logger = logging.getLogger("uvicorn.error")
+
 favicon_path = "images/favicon.ico"
 templates = Jinja2Templates(directory="templates/")
 
