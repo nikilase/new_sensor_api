@@ -5,7 +5,12 @@ Accept: application/json
 
 ###
 
-GET https://lab.eichenbergs.de/hello/User
+GET https://lab.eichenbergs.de/ping/sensorId/miflora1
+Accept: application/json
+
+###
+
+GET https://lab.eichenbergs.de/restart/sensorId/miflora1
 Accept: application/json
 
 ###
@@ -19,7 +24,7 @@ POST https://lab.eichenbergs.de/Send
 Content-Type: application/json
 
 {
-  "esp8266id": "11609738",
+  "esp8266id": "11609734",
   "software_version": "NRZ-2020-133",
   "sensordatavalues": [
     {

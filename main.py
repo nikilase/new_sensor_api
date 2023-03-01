@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 # Internal modules
 from src.my_logger import log_info, log_warn, log_error
 from src.calculations import  extract_and_send_sensor_data
-from src.influx import get_latest_data
+from src.influx import get_latest_data, write_line
 
 
 app = FastAPI(
@@ -51,6 +51,37 @@ async def say_hello(name: str):
 	print("\n")
 	log_info(f"GET /hello/{name}")
 	return {"message": f"Hello {name}"}
+
+#ToDo: Maybe merge /ping and /restart to /post_stat
+@app.get("/ping/{chip_type}/{chip_id}")
+async def ping(chip_type: str, chip_id: str):
+	print("\n")
+	log_info(f"GET /ping/{chip_type}/{chip_id}")
+	match chip_type:
+		case "esp8266id":
+			chip_id = f"esp{chip_id}"
+		case"sensorId":
+			chip_id = f"gen_{chip_id}"
+
+	tags = {"sensorID": chip_id}
+	fields = {"ping": 1}
+	write_line(tags, fields)
+	return {"message": f"Received Ping"}
+
+@app.get("/restart/{chip_type}/{chip_id}")
+async def restart(chip_type: str, chip_id: str):
+	print("\n")
+	log_info(f"GET /restart/{chip_type}/{chip_id}")
+	match chip_type:
+		case "esp8266id":
+			chip_id = f"esp{chip_id}"
+		case"sensorId":
+			chip_id = f"gen_{chip_id}"
+
+	tags = {"sensorID": chip_id}
+	fields = {"restart": 1}
+	write_line(tags, fields)
+	return {"message": f"Received Restart"}
 
 @app.post("/Send")
 async def send_sensor_data(req: Request):
