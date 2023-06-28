@@ -1,4 +1,6 @@
 import math
+
+from conf import config
 from conf.config import sensors
 from src.influx import write_line
 from src.my_logger import log_info, log_warn, log_error
@@ -20,6 +22,9 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 	sensor_data_values: list = [dict]
 	tags: dict = {}
 	fields: dict = {}
+	fields_water: dict = {}
+	measurement: str = config.influxdb["msrmt"]
+	measurement_water: str = "water"
 
 	# Extract Chip ID and sensor data from json
 	for k, v in sensor_data_json.items():
@@ -28,6 +33,8 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 				chip_id = f"esp{v}"
 			case "sensorId":
 				chip_id = f"gen_{v}"
+			case "id":
+				chip_id = v
 			case "sensordatavalues":
 				sensor_data_values = v
 			case "software_version":
@@ -130,6 +137,17 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 			case "miflora_battery":
 				fields.update({"flora_battery": val})
 
+			case "water_height_percent":
+				fields_water.update({"percent": val})
+			case "water_height_volume":
+				fields_water.update({"volume": val})
+			case "water_height_height":
+				fields_water.update({"height": val})
+			case "water_height_voltage":
+				fields_water.update({"voltage": val})
+			case "water_height_location":
+				tags.update({"location": val})
+
 			case _:
 				log_warn("POST /Send", f"Received new sensor type {typ} with value {val}")
 
@@ -140,10 +158,19 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 
 	# Finally write the influx line if we have at least one tag and one field
 	if tags and fields:
-		if write_line(tags, fields):
-			return 0
-	log_error("POST /Send", "Could not write data to Influx.")
-	return 3
+		if not write_line(tags, fields, measurement):
+			log_error("POST /Send", "Could not write data to Influx.")
+			return 3
+
+	# Finally write the influx line if we have at least one tag and one field
+	elif tags and fields_water:
+		if not write_line(tags, fields_water, measurement_water):
+			log_error("POST /Send", "Could not write data to Influx.")
+			return 3
+	else:
+		log_error("POST /Send", "No data to write")
+		return 3
+	return 0
 
 def extract_and_send_stat_data(sensor_stat_json: dict):
 	# Important variables for sensor data and Influx string

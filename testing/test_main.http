@@ -84,3 +84,34 @@ Content-Type: application/json
   "software_version": "NRZ-2020-133",
   "type": "restart"
 }
+
+###
+
+POST https://lab.eichenbergs.de/Send
+Content-Type: application/json
+
+{
+  "id": "test",
+  "sensordatavalues": [
+    {
+      "value_type": "water_height_percent",
+      "value": 0.123
+    },
+    {
+      "value_type": "water_height_volume",
+      "value": 321.69
+    },
+    {
+      "value_type": "water_height_height",
+      "value": 1.65
+    },
+    {
+      "value_type": "water_height_voltage",
+      "value": 1.345
+    },
+    {
+      "value_type": "water_height_location",
+      "value": "test location"
+    }
+  ]
+}

@@ -4,13 +4,17 @@ from influxdb.resultset import ResultSet
 from conf.config import influxdb as inf
 
 
-def write_line(tags: dict, fields: dict):
+def write_line(tags: dict, fields: dict, measurement: str = inf["msrmt"]):
+	database: str = inf["db"]
+	if measurement == "water":
+		database = "NodeRed"
+	print(f"{measurement} {database}")
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
-							database= inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
+							database= database, ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
 		json_body = [
 			{
-				"measurement": inf["msrmt"],
+				"measurement": measurement,
 				"fields": fields
 			}
 		]
