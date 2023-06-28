@@ -61,3 +61,26 @@ Content-Type: application/json
     }
   ]
 }
+
+
+###
+
+POST https://lab.eichenbergs.de/post_stat
+Content-Type: application/json
+
+{
+  "esp8266id": "11609734",
+  "software_version": "NRZ-2020-133",
+  "type": "ping"
+}
+
+###
+
+POST https://lab.eichenbergs.de/post_stat
+Content-Type: application/json
+
+{
+  "esp8266id": "11609734",
+  "software_version": "NRZ-2020-133",
+  "type": "restart"
+}

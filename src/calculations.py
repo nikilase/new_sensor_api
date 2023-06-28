@@ -144,3 +144,47 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 			return 0
 	log_error("POST /Send", "Could not write data to Influx.")
 	return 3
+
+def extract_and_send_stat_data(sensor_stat_json: dict):
+	# Important variables for sensor data and Influx string
+	chip_id: str = ""
+	type: str = ""
+	tags: dict = {}
+	fields: dict = {}
+
+	# Extract Chip ID and sensor data from json
+	for k, v in sensor_stat_json.items():
+		match k:
+			case "esp8266id":
+				chip_id = f"esp{v}"
+			case "sensorId":
+				chip_id = f"gen_{v}"
+			case "type":
+				type = v
+			case "software_version":
+				pass
+			case _:
+				log_warn("POST /post_stat", f"Found new element in json with key {k} and value {v}")
+
+	# Test if we have Chip ID and sensor data
+	if chip_id == "":
+		log_error("POST /post_stat", f"Received no chip ID!")
+		return 1
+	tags.update({"sensorID": chip_id})
+
+	# Go through data
+	if type == "restart":
+		fields.update({"restart": 1})
+	elif type == "ping":
+		fields.update({"ping": 1})
+	else:
+		log_error("POST /post_stat", f"Received no valid message type!\n"
+									 f"Instead received {type}")
+		return 2
+
+	# Finally write the influx line if we have at least one tag and one field
+	if tags and fields:
+		if write_line(tags, fields):
+			return 0
+	log_error("POST /post_stat", "Could not write data to Influx.")
+	return 3

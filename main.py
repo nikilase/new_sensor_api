@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 
 # Internal modules
 from src.my_logger import log_info, log_warn, log_error
-from src.calculations import  extract_and_send_sensor_data
+from src.calculations import extract_and_send_sensor_data, extract_and_send_stat_data
 from src.influx import get_latest_data, write_line
 
 
@@ -82,6 +82,37 @@ async def restart(chip_type: str, chip_id: str):
 	fields = {"restart": 1}
 	write_line(tags, fields)
 	return {"message": f"Received Restart"}
+
+# ToDo: Test function
+@app.post("/post_stat")
+async def post_stat(req: Request):
+	print("\n")
+	log_info(f"POST /post_stat")
+	try:
+		stat_data_json: dict = await req.json()
+	except Exception as err:
+		body = await req.body()
+		log_error("POST /post_stat", f"Error: {err} \n"
+								f"\tInvalid JSON body: {body}")
+		return {"message": "Failed to receive Sensor Data JSON Object!"}
+	else:
+		log_info("POST /post_stat", f"Received Data: \n"
+							   f"{stat_data_json}")
+
+		failed: int = extract_and_send_stat_data(stat_data_json)
+		if not failed:
+			return {"message": "Successfully received and sent Sensor Stat to Influx DB!"}
+		else:
+			match failed:
+				case 1:
+					return {"message": "Error: No Chip ID was sent!"}
+				case 2:
+					return {"message": "Error: No sensor data was sent!"}
+				case 3:
+					return {"message": "Could not write the data to Influx DB!"}
+				case _:
+					return {"message": "Unknown error occurred. Could not extract data or send to Influx DB!"}
+
 
 @app.post("/Send")
 async def send_sensor_data(req: Request):
