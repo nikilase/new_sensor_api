@@ -4,6 +4,8 @@ from conf import config
 from conf.config import sensors
 from src.influx import write_line
 from src.my_logger import log_info, log_warn, log_error
+from conf.config import influxdb
+
 def get_height(chip_id: str):
 	heights = [sensor["elevation"] for sensor in sensors if sensor["sensor"]==chip_id]
 	if heights:
@@ -127,6 +129,8 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 				fields.update({"signal": signal})
 
 			case "miflora_temperature":
+				if float(val) < -50.0 or float(val) > 50:
+					continue
 				fields.update({"flora_temperature": float(val)})
 			case "miflora_moisture":
 				fields.update({"flora_moisture": val})
@@ -158,14 +162,21 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 
 	# Finally write the influx line if we have at least one tag and one field
 	if tags and fields:
-		if not write_line(tags, fields, measurement):
+		ret = 0
+		log_info(f"{tags} {fields} {measurement}")
+		if not write_line(tags, fields, measurement, influxdb):
 			log_error("POST /Send", "Could not write data to Influx.")
+			ret = 3
+		if ret == 3:
 			return 3
 
 	# Finally write the influx line if we have at least one tag and one field
 	elif tags and fields_water:
-		if not write_line(tags, fields_water, measurement_water):
+		ret = 0
+		if not write_line(tags, fields_water, measurement_water, influxdb):
 			log_error("POST /Send", "Could not write data to Influx.")
+			ret = 3
+		if ret == 3:
 			return 3
 	else:
 		log_error("POST /Send", "No data to write")
@@ -211,7 +222,13 @@ def extract_and_send_stat_data(sensor_stat_json: dict):
 
 	# Finally write the influx line if we have at least one tag and one field
 	if tags and fields:
-		if write_line(tags, fields):
+		ret = 0
+		if not write_line(tags, fields, "", influxdb):
+			ret = 3
+		if ret == 3:
+			log_error("POST /post_stat", "Could not write data to Influx.")
+			return 3
+		else:
 			return 0
-	log_error("POST /post_stat", "Could not write data to Influx.")
+	log_error("POST /post_stat", "No data found")
 	return 3

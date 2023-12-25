@@ -1,14 +1,16 @@
 from influxdb import InfluxDBClient
 from influxdb.resultset import ResultSet
 
-from conf.config import influxdb as inf
+from conf.config import influxdb
 
-
-def write_line(tags: dict, fields: dict, measurement: str = inf["msrmt"]):
+def write_line(tags: dict, fields: dict, measurement: str = "", db_conf: dict = influxdb):
+	inf = db_conf
+	if measurement == "":
+		measurement = inf["msrmt"]
 	database: str = inf["db"]
 	if measurement == "water":
 		database = "NodeRed"
-	print(f"{measurement} {database}")
+	print(f"Sent Sensor data to {inf['host']}:{inf['port']} {measurement} {database}")
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
 							database= database, ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
@@ -26,7 +28,8 @@ def write_line(tags: dict, fields: dict, measurement: str = inf["msrmt"]):
 		print(e)
 		return False
 
-def get_latest_data(chip_id: str = "esp11609738"):
+def get_latest_data(chip_id: str = "esp11609738", db = influxdb):
+	inf = influxdb
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
 							database= inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])

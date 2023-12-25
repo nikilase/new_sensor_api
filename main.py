@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from src.my_logger import log_info, log_warn, log_error
 from src.calculations import extract_and_send_sensor_data, extract_and_send_stat_data
 from src.influx import get_latest_data, write_line
+from conf.config import influxdb
 
 
 app = FastAPI(
@@ -65,7 +66,8 @@ async def ping(chip_type: str, chip_id: str):
 
 	tags = {"sensorID": chip_id}
 	fields = {"ping": 1}
-	write_line(tags, fields)
+	write_line(tags, fields, "", influxdb)
+
 	return {"message": f"Received Ping"}
 
 @app.get("/restart/{chip_type}/{chip_id}")
@@ -80,7 +82,8 @@ async def restart(chip_type: str, chip_id: str):
 
 	tags = {"sensorID": chip_id}
 	fields = {"restart": 1}
-	write_line(tags, fields)
+	write_line(tags, fields, "", influxdb)
+
 	return {"message": f"Received Restart"}
 
 # ToDo: Test function
