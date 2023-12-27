@@ -72,7 +72,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					print(e)
 					temperature = None
 					continue
-				if temperature < -50.0 or temperature > 50.0:
+				if temperature < -50.0 or temperature > 50.0 or math.isnan(temperature):
 					log_warn("POST /Send", f"Inconsistent temperature reading of {temperature}! Discarding value!")
 					temperature = None
 					continue
@@ -85,7 +85,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					print(e)
 					pressure = None
 					continue
-				if pressure < 85000 or pressure > 115000:
+				if pressure < 85000 or pressure > 115000 or math.isnan(pressure):
 					log_warn("POST /Send", f"Inconsistent pressure reading of {pressure}! Discarding value!")
 					pressure = None
 					continue
@@ -98,10 +98,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					print(e)
 					humidity = None
 					continue
-				if humidity < 0 or humidity > 100:
+				if humidity < 0 or humidity > 100 or math.isnan(humidity):
 					log_warn("POST /Send", f"Inconsistent humidity reading of {humidity}! Discarding value!")
 					humidity = None
 					continue
+
 				fields.update({"humidity": humidity})
 
 			case "DS18B20_temperature":
@@ -111,7 +112,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 					print(e)
 					ds18b20 = None
 					continue
-				if ds18b20 < -50.0 or ds18b20 > 50.0:
+				if ds18b20 < -50.0 or ds18b20 > 50.0 or math.isnan(ds18b20):
 					log_warn("POST /Send", f"Inconsistent ds18b20 temperature reading of {ds18b20}! Discarding value!")
 					ds18b20 = None
 					continue
