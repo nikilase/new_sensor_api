@@ -187,7 +187,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 def extract_and_send_stat_data(sensor_stat_json: dict):
 	# Important variables for sensor data and Influx string
 	chip_id: str = ""
-	type: str = ""
+	sensor_type: str = ""
 	tags: dict = {}
 	fields: dict = {}
 
@@ -199,7 +199,7 @@ def extract_and_send_stat_data(sensor_stat_json: dict):
 			case "sensorId":
 				chip_id = f"gen_{v}"
 			case "type":
-				type = v
+				sensor_type = v
 			case "software_version":
 				pass
 			case _:
@@ -212,13 +212,13 @@ def extract_and_send_stat_data(sensor_stat_json: dict):
 	tags.update({"sensorID": chip_id})
 
 	# Go through data
-	if type == "restart":
+	if sensor_type == "restart":
 		fields.update({"restart": 1})
-	elif type == "ping":
+	elif sensor_type == "ping":
 		fields.update({"ping": 1})
 	else:
 		log_error("POST /post_stat", f"Received no valid message type!\n"
-									 f"Instead received {type}")
+									 f"Instead received {sensor_type}")
 		return 2
 
 	# Finally write the influx line if we have at least one tag and one field

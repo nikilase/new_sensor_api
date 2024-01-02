@@ -42,9 +42,9 @@ async def home(request: Request):
 	return templates.TemplateResponse('root.html', context={'request': request})
 
 @app.get("/get_latest")
-async def get_latest():
+async def get_latest(chip_id: str = "esp11609738"):
 	print("\n")
-	x = get_latest_data()
+	x = get_latest_data(chip_id)
 	return x
 
 @app.get("/hello/{name}")
