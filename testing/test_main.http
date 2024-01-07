@@ -1,30 +1,27 @@
 # Test your FastAPI endpoints
 
-GET https://lab.eichenbergs.de/
+### Main Website
+GET https://www.eichenbergs.com/
 Accept: application/json
 
-###
-
-GET https://lab.eichenbergs.de/ping/sensorId/miflora1
+### Sensor Ping
+GET https://www.eichenbergs.com/ping/id/test_sensor
 Accept: application/json
 
-###
-
-GET https://lab.eichenbergs.de/restart/sensorId/miflora1
+### Sensor has restarted
+GET https://www.eichenbergs.com/restart/id/test_sensor
 Accept: application/json
 
-###
-
-POST https://lab.eichenbergs.de/Send
+### Fail Post Send
+POST https://www.eichenbergs.com/Send
 Content-Type: application/json
 
-###
-
-POST https://lab.eichenbergs.de/Send
+### Succeed Post Send
+POST https://www.eichenbergs.com/Send
 Content-Type: application/json
 
 {
-  "esp8266id": "11609734",
+  "id": "test_sensor",
   "software_version": "NRZ-2020-133",
   "sensordatavalues": [
     {
@@ -65,33 +62,33 @@ Content-Type: application/json
 
 ###
 
-POST https://lab.eichenbergs.de/post_stat
+POST https://www.eichenbergs.com/post_stat
 Content-Type: application/json
 
 {
-  "esp8266id": "11609734",
+  "id": "test_sensor",
   "software_version": "NRZ-2020-133",
   "type": "ping"
 }
 
 ###
 
-POST https://lab.eichenbergs.de/post_stat
+POST https://www.eichenbergs.com/post_stat
 Content-Type: application/json
 
 {
-  "esp8266id": "11609734",
+  "id": "test_sensor",
   "software_version": "NRZ-2020-133",
   "type": "restart"
 }
 
 ###
 
-POST https://lab.eichenbergs.de/Send
+POST https://www.eichenbergs.com/Send
 Content-Type: application/json
 
 {
-  "id": "test",
+  "id": "test_sensor",
   "sensordatavalues": [
     {
       "value_type": "water_height_percent",

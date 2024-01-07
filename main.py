@@ -1,6 +1,6 @@
 # External modules
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request, status
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 # Internal modules
@@ -28,7 +28,7 @@ favicon_path = "images/favicon.ico"
 templates = Jinja2Templates(directory="templates/")
 
 
-#ToDo: Sample Arduino program for sending stuff via HTTP POST JSON: https://www.techcoil.com/blog/how-to-post-json-data-to-a-http-server-endpoint-from-your-esp32-development-board-with-arduinojson/
+#ToDo: Add correct return codes, especially when errored
 
 
 @app.get('/favicon.ico', include_in_schema=False)
@@ -63,6 +63,8 @@ async def ping(chip_type: str, chip_id: str):
 			chip_id = f"esp{chip_id}"
 		case"sensorId":
 			chip_id = f"gen_{chip_id}"
+		case "id":
+			chip_id = chip_id
 
 	tags = {"sensorID": chip_id}
 	fields = {"ping": 1}
@@ -79,6 +81,8 @@ async def restart(chip_type: str, chip_id: str):
 			chip_id = f"esp{chip_id}"
 		case"sensorId":
 			chip_id = f"gen_{chip_id}"
+		case "id":
+			chip_id = chip_id
 
 	tags = {"sensorID": chip_id}
 	fields = {"restart": 1}
@@ -130,7 +134,9 @@ async def send_sensor_data(req: Request):
 		body = await req.body()
 		log_error("POST /Send", f"Error: {err} \n"
 								f"\tInvalid JSON body: {body}")
-		return {"message": "Failed to receive Sensor Data JSON Object!"}
+		message = {"messages": "Failed to receive Sensor Data JSON Object!"}
+		return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=message)
+
 	else:
 		log_info("POST /Send", f"Received Data: \n"
 							   f"{sensor_data_json}")
@@ -141,10 +147,15 @@ async def send_sensor_data(req: Request):
 		else:
 			match failed:
 				case 1:
-					return {"message": "Error: No Chip ID was sent!"}
+					message = "Error: No Chip ID was sent!"
+					#return {"message": "Error: No Chip ID was sent!"}
 				case 2:
-					return {"message": "Error: No sensor data was sent!"}
+					message = "Error: No sensor data was sent!"
+					#return {"message": "Error: No sensor data was sent!"}
 				case 3:
-					return {"message": "Could not write the data to Influx DB!"}
+					message = "Could not write the data to Influx DB!"
+					#return {"message": "Could not write the data to Influx DB!"}
 				case _:
-					return {"message": "Unknown error occurred. Could not extract data or send to Influx DB!"}
+					message = "Unknown error occurred. Could not extract data or send to Influx DB!"
+					#return {"message": "Unknown error occurred. Could not extract data or send to Influx DB!"}
+			JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"messages": message})

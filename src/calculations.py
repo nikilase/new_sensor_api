@@ -6,17 +6,41 @@ from src.influx import write_line
 from src.my_logger import log_info, log_warn, log_error
 from conf.config import influxdb
 
+
 def get_height(chip_id: str):
-	heights = [sensor["elevation"] for sensor in sensors if sensor["sensor"]==chip_id]
+	heights = [sensor["elevation"] for sensor in sensors if sensor["sensor"] == chip_id]
 	if heights:
 		return heights[0]
 	else:
 		return None
 
+
 def normalize_pressure(pressure: float, height: float, temperature: float):
 	p = 1 - ((0.0065 * height) / (temperature + 0.0065 * height + 273.15))
 	p = pressure * math.pow(p, -5.257)
-	return round(p*100) / 100
+	return round(p * 100) / 100
+
+
+def str_to_float(value_str: str) -> float | None:
+	try:
+		value_float = float(value_str)
+	except Exception as e:
+		print(e)
+		return None
+	return value_float
+
+
+def str_to_float_validate(value_str: str, min_val: float, max_val: float, value_type: str = "value") -> float | None:
+	try:
+		value_float = float(value_str)
+	except Exception as e:
+		print(e)
+		return None
+	if value_float < min_val or value_float > max_val or math.isnan(value_float):
+		log_warn("POST /Send", f"Inconsistent {value_type} reading of {value_float}! Discarding value!")
+		return None
+	return value_float
+
 
 def extract_and_send_sensor_data(sensor_data_json: dict):
 	# Important variables for sensor data and Influx string
@@ -66,73 +90,37 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 		typ = elem["value_type"]
 		match typ:
 			case "BME280_temperature":
-				try:
-					temperature = float(val)
-				except Exception as e:
-					print(e)
-					temperature = None
-					continue
-				if temperature < -50.0 or temperature > 50.0 or math.isnan(temperature):
-					log_warn("POST /Send", f"Inconsistent temperature reading of {temperature}! Discarding value!")
-					temperature = None
-					continue
-				fields.update({"temperature": temperature})
+				temperature = str_to_float_validate(val, -50, 50, "temperature")
+				if temperature is not None:
+					fields.update({"temperature": temperature})
 
 			case "BME280_pressure":
-				try:
-					pressure = float(val)
-				except Exception as e:
-					print(e)
-					pressure = None
-					continue
-				if pressure < 85000 or pressure > 115000 or math.isnan(pressure):
-					log_warn("POST /Send", f"Inconsistent pressure reading of {pressure}! Discarding value!")
-					pressure = None
-					continue
-				fields.update({"pressure": pressure})
+				pressure = str_to_float_validate(val, 85000, 115000, "pressure")
+				if pressure is not None:
+					fields.update({"pressure": pressure})
 
 			case "BME280_humidity":
-				try:
-					humidity = float(val)
-				except Exception as e:
-					print(e)
-					humidity = None
-					continue
-				if humidity < 0 or humidity > 100 or math.isnan(humidity):
-					log_warn("POST /Send", f"Inconsistent humidity reading of {humidity}! Discarding value!")
-					humidity = None
-					continue
-
-				fields.update({"humidity": humidity})
+				humidity = str_to_float_validate(val, 0, 100, "humidity")
+				if humidity is not None:
+					fields.update({"humidity": humidity})
 
 			case "DS18B20_temperature":
-				try:
-					ds18b20 = float(val)
-				except Exception as e:
-					print(e)
-					ds18b20 = None
-					continue
-				if ds18b20 < -50.0 or ds18b20 > 50.0 or math.isnan(ds18b20):
-					log_warn("POST /Send", f"Inconsistent ds18b20 temperature reading of {ds18b20}! Discarding value!")
-					ds18b20 = None
-					continue
-				fields.update({"temperature_ds18b20": ds18b20})
+				ds18b20 = str_to_float_validate(val, -50, 50, "ds18b20")
+				if ds18b20 is not None:
+					fields.update({"temperature_ds18b20": ds18b20})
 
 			case "samples" | "min_micro" | "max_micro" | "interval":
 				pass
 
 			case "signal":
-				try:
-					signal = float(val)
-				except Exception as e:
-					print(e)
-					continue
-				fields.update({"signal": signal})
+				signal = str_to_float(val)
+				if signal is not None:
+					fields.update({"signal": signal})
 
 			case "miflora_temperature":
-				if float(val) < -50.0 or float(val) > 50:
-					continue
-				fields.update({"flora_temperature": float(val)})
+				miflora_temperature = str_to_float_validate(val, -50, 50, "miflora_temperature")
+				if miflora_temperature is not None:
+					fields.update({"flora_temperature": miflora_temperature})
 			case "miflora_moisture":
 				fields.update({"flora_moisture": val})
 			case "miflora_ec":
@@ -174,6 +162,8 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 	# Finally write the influx line if we have at least one tag and one field
 	elif tags and fields_water:
 		ret = 0
+		tags.pop("sensorID")
+		tags.update({"id": chip_id})
 		if not write_line(tags, fields_water, measurement_water, influxdb):
 			log_error("POST /Send", "Could not write data to Influx.")
 			ret = 3
@@ -183,6 +173,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 		log_error("POST /Send", "No data to write")
 		return 3
 	return 0
+
 
 def extract_and_send_stat_data(sensor_stat_json: dict):
 	# Important variables for sensor data and Influx string
