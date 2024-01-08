@@ -69,6 +69,6 @@ async def get_from_db(lat: str, long: str) -> OWWeather | None:
 
 	last_update, weather_data = res
 	ow = openweather_data_from_json(json.loads(weather_data))
-	print(ow)
+
 	return OWWeather(lat=lat, long=long, json_data=ow, last_updated_utc=last_update)
 

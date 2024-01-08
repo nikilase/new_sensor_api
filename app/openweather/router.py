@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.openweather.controller import get_weather
+from app.openweather.controller import get_weather, get_weather_asnyc
 from app.openweather.models.sqlite import get_from_db
 from app.openweather.schema import OpenweatherData
 
@@ -16,9 +16,9 @@ async def get_openweather(lat: str, long: str) -> OpenweatherData | None:
 	return x
 
 
-@router.get("/async_get")
-async def get_async_get(lat: str, long: str) -> OpenweatherData | None:
-	a = await get_from_db(lat, long)
+@router.get("/async_get_openweather")
+async def async_get_openweather(lat: str, long: str) -> OpenweatherData | None:
+	a = await get_weather_asnyc(lat, long)
 	if a is None:
 		return None
-	return a.json_data
+	return a
