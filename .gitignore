@@ -5,7 +5,8 @@
 .idea
 __pycache__
 venv
-conf/config.py
+app/conf/config.py
+app/openweather/models/openweather.db
 
 # User-specific stuff
 .idea/**/workspace.xml

@@ -1,10 +1,10 @@
 import math
 
-from conf import config
-from conf.config import sensors
-from src.influx import write_line
-from src.my_logger import log_info, log_warn, log_error
-from conf.config import influxdb
+from app.conf import config
+from app.conf.config import sensors
+from app.api.models.influx import write_line
+from app.helpers.my_logger import log_info, log_warn, log_error
+from app.conf.config import influxdb
 
 
 def get_height(chip_id: str):

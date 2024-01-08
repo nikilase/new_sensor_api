@@ -4,6 +4,10 @@
 GET https://www.eichenbergs.com/
 Accept: application/json
 
+### Get OW
+GET http://localhost:8986/get_openweather?lat=51.2005&long=9.9080
+Accept: application/json
+
 ### Sensor Ping
 GET https://www.eichenbergs.com/ping/id/test_sensor
 Accept: application/json
@@ -17,7 +21,8 @@ POST https://www.eichenbergs.com/Send
 Content-Type: application/json
 
 ### Succeed Post Send
-POST https://www.eichenbergs.com/Send
+#POST https://www.eichenbergs.com/Send
+POST http://127.0.0.1:8986/Send
 Content-Type: application/json
 
 {

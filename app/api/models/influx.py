@@ -1,7 +1,8 @@
 from influxdb import InfluxDBClient
 from influxdb.resultset import ResultSet
 
-from conf.config import influxdb
+from app.conf.config import influxdb
+
 
 def write_line(tags: dict, fields: dict, measurement: str = "", db_conf: dict = influxdb):
 	inf = db_conf
@@ -13,7 +14,7 @@ def write_line(tags: dict, fields: dict, measurement: str = "", db_conf: dict = 
 	print(f"Sent Sensor data to {inf['host']}:{inf['port']} {measurement} {database}")
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
-							database= database, ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
+								database=database, ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
 		json_body = [
 			{
 				"measurement": measurement,
@@ -28,12 +29,12 @@ def write_line(tags: dict, fields: dict, measurement: str = "", db_conf: dict = 
 		print(e)
 		return False
 
-def get_latest_data(chip_id: str = "esp11609738", db = influxdb):
+
+def get_latest_data(chip_id: str = "esp11609738", db=influxdb):
 	inf = influxdb
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
-							database= inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
-
+								database=inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
 
 		query = f"SELECT * FROM \"{inf['msrmt']}\" WHERE (\"sensorID\"='{chip_id}') ORDER BY time DESC LIMIT 1"
 		result: ResultSet = client.query(query)
@@ -47,4 +48,3 @@ def get_latest_data(chip_id: str = "esp11609738", db = influxdb):
 	except Exception as e:
 		print(e)
 		return False
-

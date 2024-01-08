@@ -31,6 +31,13 @@ influxdb = {
 	"verify_ssl": False,
 }
 
+openweathermap = {
+	"api_key": "<secret_key>",
+	"lat": "50.94625",
+	"long": "8.1235",
+	"base_url": "https://api.openweathermap.org/data/3.0/onecall",
+}
+
 sensors = [
 	{
 		"sensor": "esp12345",
