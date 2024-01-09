@@ -19,9 +19,6 @@ class OWWeather(BaseModel):
 		offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
 		return self.last_updated_utc + offset
 
-	def open_weater_to_str(self):
-		return json.dumps(self.json_data.__dict__)
-
 	def update_sqlite(self):
 		conn = sqlite3.connect(db_path())
 		c = conn.cursor()
@@ -29,7 +26,7 @@ class OWWeather(BaseModel):
 		print(self.lat)
 		print(self.long)
 		query = "update openweather set last_update_utc = ?, weather_data = ? where lat=? and long=?"
-		c.execute(query, (self.last_updated_utc, self.open_weater_to_str(), self.lat, self.long))
+		c.execute(query, (self.last_updated_utc, self.json_data.json(), self.lat, self.long))
 		conn.commit()
 		c.close()
 		conn.close()

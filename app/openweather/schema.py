@@ -1,4 +1,3 @@
-import json
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -103,7 +102,7 @@ class Hourly(BaseModel):
     wind_gust: Optional[float] = Field(None, description='(where available) Wind gust. Units – default: metre/sec, '
                                                          'metric: metre/sec, imperial: miles/hour.', example=14.1)
     wind_deg: Optional[int] = Field(None, description='Wind direction, degrees (meteorological)', example=71)
-    pop: Optional[int] = Field(None, description='Probability of precipitation. The values of the parameter vary '
+    pop: Optional[float] = Field(None, description='Probability of precipitation. The values of the parameter vary '
                                                  'between 0 and 1, where 0 is equal to 0%, 1 is equal to 100%',
                                example=0)
     rain: Optional[Rain] = Field(None, description='(where available) Precipitation volume, mm. Please note that only '
@@ -157,7 +156,7 @@ class Daily(BaseModel):
     wind_deg: Optional[int] = Field(None, description='Wind direction, degrees (meteorological)', example=71)
     clouds: Optional[int] = Field(None, description='Cloudiness, %', example=55)
     uvi: Optional[float] = Field(None, description='The maximum value of UV index for the day', example=0.51)
-    pop: Optional[int] = Field(None, description='Probability of precipitation. The values of the parameter vary '
+    pop: Optional[float] = Field(None, description='Probability of precipitation. The values of the parameter vary '
                                                  'between 0 and 1, where 0 is equal to 0%, 1 is equal to 100%',
                                example=0)
     rain: Optional[float] = Field(None, description='(where available) Precipitation volume, mm. Please note that only '
@@ -203,13 +202,5 @@ class OpenweatherData(BaseModel):
 
 def openweather_data_from_json(obj: dict) -> OpenweatherData:
     ow = OpenweatherData()
-    ow.lat = obj["lat"]
-    ow.lon = obj["lon"]
-    ow.timezone = obj["timezone"]
-    ow.timezone_offset = obj["timezone_offset"]
-    ow.current = obj["current"]
-    ow.minutely = obj["minutely"]
-    ow.hourly = obj["hourly"]
-    ow.daily = obj["daily"]
-    ow.alerts = obj["alerts"]
-    return ow
+    return ow.parse_obj(obj)
+
