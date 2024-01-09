@@ -1,5 +1,4 @@
 from datetime import datetime, timezone, timedelta
-import json
 import requests
 
 from app.openweather.models.sqlite import OWWeather, get_from_sqlite, get_from_db
@@ -20,7 +19,7 @@ def get_from_openweather_api():
 		# Make request
 		req = requests.get(req_url)
 		data = req.json()
-		data_string = json.dumps(data, indent=4, sort_keys=True)
+
 		upd_time = datetime.now(tz=timezone.utc)
 		ow_data = openweather_data_from_json(data)
 		# Create OWWeather Object and update SQLite DB with it
@@ -73,7 +72,7 @@ async def get_from_openweather_api_async() -> OWWeather | None:
 		# Make request
 		req = requests.get(req_url)
 		data = req.json()
-		data_string = json.dumps(data, indent=4, sort_keys=True)
+
 		upd_time = datetime.now(tz=timezone.utc)
 		ow_data = openweather_data_from_json(data)
 		# Create OWWeather Object and update SQLite DB with it

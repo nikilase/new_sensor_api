@@ -46,4 +46,5 @@ sensors = [
 		"long": 10.08179,
 		"country": "GER",
 		"state": "HE"
-}]
+	}
+]

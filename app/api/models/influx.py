@@ -30,8 +30,7 @@ def write_line(tags: dict, fields: dict, measurement: str = "", db_conf: dict = 
 		return False
 
 
-def get_latest_data(chip_id: str = "esp11609738", db=influxdb):
-	inf = influxdb
+def get_latest_data(chip_id: str = "esp11609738", inf=influxdb):
 	try:
 		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
 								database=inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])

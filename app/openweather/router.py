@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
 from app.openweather.controller import get_weather, get_weather_asnyc
-from app.openweather.models.sqlite import get_from_db
 from app.openweather.schema import OpenweatherData
 
 router = APIRouter()

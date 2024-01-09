@@ -102,9 +102,9 @@ class Hourly(BaseModel):
     wind_gust: Optional[float] = Field(None, description='(where available) Wind gust. Units – default: metre/sec, '
                                                          'metric: metre/sec, imperial: miles/hour.', example=14.1)
     wind_deg: Optional[int] = Field(None, description='Wind direction, degrees (meteorological)', example=71)
-    pop: Optional[float] = Field(None, description='Probability of precipitation. The values of the parameter vary '
-                                                 'between 0 and 1, where 0 is equal to 0%, 1 is equal to 100%',
-                               example=0)
+    pop: Optional[float] = Field(None, description='Probability of precipitation. The values of the parameter '
+                                                   'vary between 0 and 1, where 0 is equal to 0%, 1 is equal to 100%',
+                                 example=0)
     rain: Optional[Rain] = Field(None, description='(where available) Precipitation volume, mm. Please note that only '
                                                    'mm as units of measurement are available for this parameter',
                                  example=12.6)
