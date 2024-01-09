@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 influxdb = {
 	# The address of the InfluxDB
 	"host": "0.0.0.0",
@@ -33,9 +35,14 @@ influxdb = {
 
 openweathermap = {
 	"api_key": "<secret_key>",
-	"lat": "50.94625",
-	"long": "8.1235",
 	"base_url": "https://api.openweathermap.org/data/3.0/onecall",
+	"only_allowed_coords": True,
+	"allowed_coords": [
+		{
+			"lat": Decimal(50.9462),
+			"long": Decimal(8.1235)
+		}
+	]
 }
 
 sensors = [
