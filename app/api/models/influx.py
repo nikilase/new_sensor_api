@@ -73,3 +73,27 @@ def get_running_avg(chip_id: str, field: str, count: int, window_s: int = 600, g
 	except Exception as e:
 		print(e)
 		return False
+
+
+def get_max_value(chip_id: str, field: str, window_s: int = 600, inf=influxdb):
+	try:
+		client = InfluxDBClient(host=inf["host"], port=inf["port"], username=inf["user"], password=inf["pwd"],
+								database=inf["db"], ssl=inf["ssl"], verify_ssl=inf["verify_ssl"])
+
+		query = (
+			f"SELECT max(\"{field}\") FROM \"{inf['msrmt']}\" "
+			f"WHERE (\"sensorID\"='{chip_id}') AND time > now() - {window_s}s "
+		)
+		result: ResultSet = client.query(query)
+		client.close()
+
+		# This effectively returns just the last point
+		result_dict = {}
+		for point in result.get_points():
+			result_dict.update(point)
+
+		return result_dict
+
+	except Exception as e:
+		print(e)
+		return False

@@ -2,7 +2,7 @@ import math
 
 from app.conf import config
 from app.conf.config import sensors
-from app.api.models.influx import write_line, get_running_avg
+from app.api.models.influx import write_line, get_running_avg, get_max_value
 from app.helpers.my_logger import log_info, log_warn, log_error
 from app.conf.config import influxdb
 
@@ -143,13 +143,16 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 
 			case "MHZ19B_co2":
 				fields.update({"co2": val})
-				print(chip_id)
+
 				runn_avg = get_running_avg(chip_id, "co2", 18, 600)
 				co2_avg = runn_avg.get("moving_average")
-				print(runn_avg)
 				if co2_avg is not None:
 					fields.update({"co2_avg": int(co2_avg)})
 
+				max_val = get_max_value(chip_id, "co2", 120)
+				co2_max = max_val.get("max")
+				if co2_max is not None:
+					fields.update({"co2_max": int(co2_max)})
 
 			case _:
 				log_warn("POST /Send extract_and_send_sensor_data()",
