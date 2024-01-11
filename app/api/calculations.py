@@ -2,7 +2,7 @@ import math
 
 from app.conf import config
 from app.conf.config import sensors
-from app.api.models.influx import write_line
+from app.api.models.influx import write_line, get_running_avg
 from app.helpers.my_logger import log_info, log_warn, log_error
 from app.conf.config import influxdb
 
@@ -76,7 +76,7 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 
 	if not sensor_data_values:
 		log_error("POST /Send", f"Received no valid sensor data value array!\n"
-								f"Instead received {sensor_data_values}")
+						f"Instead received {sensor_data_values}")
 		return 2
 
 	# Try to retrieve height of the sensor via Chip ID
@@ -143,9 +143,17 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 
 			case "MHZ19B_co2":
 				fields.update({"co2": val})
+				print(chip_id)
+				runn_avg = get_running_avg(chip_id, "co2", 18, 600)
+				co2_avg = runn_avg.get("moving_average")
+				print(runn_avg)
+				if co2_avg is not None:
+					fields.update({"co2_avg": int(co2_avg)})
+
 
 			case _:
-				log_warn("POST /Send extract_and_send_sensor_data()", f"Received new sensor type {typ} with value {val}")
+				log_warn("POST /Send extract_and_send_sensor_data()",
+						f"Received new sensor type {typ} with value {val}")
 
 	# Now calculate the normalized ASL pressure
 	if None not in [height, pressure, temperature]:
@@ -212,7 +220,7 @@ def extract_and_send_stat_data(sensor_stat_json: dict):
 		fields.update({"ping": 1})
 	else:
 		log_error("POST /post_stat", f"Received no valid message type!\n"
-									 f"Instead received {sensor_type}")
+		                             f"Instead received {sensor_type}")
 		return 2
 
 	# Finally write the influx line if we have at least one tag and one field

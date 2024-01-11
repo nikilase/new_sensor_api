@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ### Succeed Post Send
 #POST https://www.eichenbergs.com/Send
-POST http://127.0.0.1:8986/Send
+POST http://localhost:8000/Send
 Content-Type: application/json
 
 {
@@ -60,6 +60,10 @@ Content-Type: application/json
     {
       "value_type": "signal",
       "value": "-83"
+    },
+    {
+      "value_type": "MHZ19B_co2",
+      "value": 1188
     }
   ]
 }
