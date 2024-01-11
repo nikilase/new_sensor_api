@@ -45,6 +45,8 @@ def get_from_openweather_api(lat: Decimal, long: Decimal):
 			weather.insert_into_sqlite()
 		else:
 			weather.update_sqlite()
+
+		# ToDo: Also send the temperature to influx so that I can cross reference the data with my sensors
 	else:
 		print("Data already new enough")
 

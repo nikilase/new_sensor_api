@@ -141,8 +141,11 @@ def extract_and_send_sensor_data(sensor_data_json: dict):
 			case "water_height_location":
 				tags.update({"location": val})
 
+			case "MHZ19B_co2":
+				fields.update({"co2": val})
+
 			case _:
-				log_warn("POST /Send", f"Received new sensor type {typ} with value {val}")
+				log_warn("POST /Send extract_and_send_sensor_data()", f"Received new sensor type {typ} with value {val}")
 
 	# Now calculate the normalized ASL pressure
 	if None not in [height, pressure, temperature]:
