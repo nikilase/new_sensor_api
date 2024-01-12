@@ -202,5 +202,5 @@ class OpenweatherData(BaseModel):
 
 def openweather_data_from_json(obj: dict) -> OpenweatherData:
     ow = OpenweatherData()
-    return ow.parse_obj(obj)
+    return ow.model_validate(obj)
 

@@ -129,3 +129,6 @@ Accept: application/json
 ###
 GET https://www.eichenbergs.com/get_latest
 Accept: application/json
+
+###
+GET http://localhost:8000/get_openweather?lat=41.893&long=12.483
