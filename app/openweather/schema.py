@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class WeatherData(BaseModel):
@@ -27,13 +27,19 @@ class Temp(BaseModel):
 
 
 class Rain(BaseModel):
+    # Openweathermap sends field as 1h but that cannot be used natively in pydantic so we need to allow it as an alies
+    model_config = ConfigDict(populate_by_name=True)
     h: Optional[float] = Field(None, description='(where available) Precipitation, mm/h. Please note that only mm/h as '
-                                                 'units of measurement are available for this parameter', example=12.5)
+                                                 'units of measurement are available for this parameter', example=12.5,
+                               alias="1h")
 
 
 class Snow(BaseModel):
+    # Openweathermap sends field as 1h but that cannot be used natively in pydantic so we need to allow it as an alies
+    model_config = ConfigDict(populate_by_name=True)
     h: Optional[float] = Field(None, description='where available) Precipitation, mm/h. Please note that only mm/h as '
-                                                 'units of measurement are available for this parameter', example=20.6)
+                                                 'units of measurement are available for this parameter', example=20.6,
+                              alias="1h")
 
 
 class Current(BaseModel):
@@ -202,5 +208,5 @@ class OpenweatherData(BaseModel):
 
 def openweather_data_from_json(obj: dict) -> OpenweatherData:
     ow = OpenweatherData()
-    return ow.model_validate(obj)
+    return ow.model_validate(obj, strict=True)
 
