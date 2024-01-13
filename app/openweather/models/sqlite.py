@@ -47,6 +47,28 @@ def db_path() -> str:
 	return os.path.join(base_dir, "openweather.db")
 
 
+def init_db() -> None:
+	conn = sqlite3.connect(db_path())
+	c = conn.cursor()
+
+	query = """ CREATE TABLE IF NOT EXISTS openweather (
+				lat text not null,
+				long text not null,
+				last_update_utc datetime,
+				weather_data    text,
+				constraint openweather_pk
+				primary key (lat, long)
+				); 
+			"""
+
+	try:
+		c.execute(query)
+	except sqlite3.OperationalError as e:
+		print(e)
+	c.close()
+	conn.close()
+
+
 def get_from_sqlite(lat: str, long: str) -> OWWeather | None:
 	# ToDo: Refactor to use Decimal instead of string
 	conn = sqlite3.connect(db_path())

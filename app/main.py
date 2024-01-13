@@ -6,6 +6,8 @@ from app.website.router import router as website_router
 from app.api.router import router as api_router
 from app.openweather.router import router as ow_router
 
+from app.openweather.models.sqlite import init_db
+
 app = FastAPI(
 	title="API for former Sensorwebsite",
 	description="Ability to send well structured sensor data from luftdaten.info sensor node to my influx database. "
@@ -22,6 +24,11 @@ app = FastAPI(
 
 # ToDo: Add correct return codes in routers, especially when errored
 # ToDo: Move from Tmux to Systemd
+
+
+@app.on_event("startup")
+async def startup_event():
+	init_db()
 
 
 app.include_router(website_router, tags=["website"])
