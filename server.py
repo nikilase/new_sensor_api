@@ -2,6 +2,8 @@ import sys
 
 import uvicorn
 
+from app.conf.config import server
+
 if __name__ == "__main__":
     if sys.version_info.major == 3 and sys.version_info.minor == 10:
         print(
@@ -16,7 +18,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "app.main:app",
-        host="0.0.0.0",
-        port=8986,
-        reload=True,
+        host=server["host"],
+        port=server["port"],
+        reload=server["reload"],
     )

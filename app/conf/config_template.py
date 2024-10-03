@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+server = {"host": "0.0.0.0", "port": 1234, "reload": False}
+
 influxdb = {
     # The address of the InfluxDB
     "host": "0.0.0.0",
