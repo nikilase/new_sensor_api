@@ -15,4 +15,7 @@ async def favicon():
 @router.get("/")
 async def home(request: Request):
     print("\n")
-    return templates.TemplateResponse("root.html", context={"request": request})
+    nonce = request.state.nonce
+    return templates.TemplateResponse(
+        "root.html", context={"request": request, "nonce": nonce}
+    )

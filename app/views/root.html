@@ -41,7 +41,7 @@
 
         <div class="fs-5 col-md-8">
             Jetzt aktualisieren:
-            <button type="button" class="btn btn-primary btn-sm" onclick="update_data()"><i
+            <button type="button" class="btn btn-primary btn-sm" onclick="update_data()"  nonce="{{ nonce }}"><i
                     class="bi bi-arrow-repeat"></i></button>
         </div>
 
@@ -61,7 +61,7 @@
 </body>
 </html>
 
-<script>
+<script nonce="{{ nonce }}">
     // When page has loaded
     $(document).ready(function () {
         refreshTime();
