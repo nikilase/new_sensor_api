@@ -51,8 +51,9 @@ def get_latest_data(chip_id: str = "esp11609738", inf=influxdb):
             verify_ssl=inf["verify_ssl"],
         )
 
-        query = f"SELECT * FROM \"{inf['msrmt']}\" WHERE (\"sensorID\"='{chip_id}') ORDER BY time DESC LIMIT 1"
-        result: ResultSet = client.query(query)
+        query = f'SELECT * FROM "{inf["msrmt"]}" WHERE ("sensorID"=$chip_id) ORDER BY time DESC LIMIT 1'
+        bind_params = {"chip_id": chip_id}
+        result: ResultSet = client.query(query, bind_params=bind_params)
         client.close()
 
         # This effectively returns just the last point
@@ -86,11 +87,12 @@ def get_running_avg(
         )
 
         query = (
-            f"SELECT moving_average(mean(\"{field}\"), {count}) FROM \"{inf['msrmt']}\" "
-            f"WHERE (\"sensorID\"='{chip_id}') AND time > now() - {window_s}s "
-            f"GROUP BY time({group_time_s}s) "
+            f'SELECT moving_average(mean("{field}"), {count}) '
+            f'FROM "{inf["msrmt"]}" '
+            f'WHERE ("sensorID"=$chip_id) AND time > now() - {window_s}s GROUP BY time({group_time_s}s) '
         )
-        result: ResultSet = client.query(query)
+        bind_params = {"chip_id": chip_id}
+        result: ResultSet = client.query(query, bind_params=bind_params)
         client.close()
 
         # This effectively returns just the last point
@@ -118,10 +120,12 @@ def get_max_value(chip_id: str, field: str, window_s: int = 600, inf=influxdb):
         )
 
         query = (
-            f"SELECT max(\"{field}\") FROM \"{inf['msrmt']}\" "
-            f"WHERE (\"sensorID\"='{chip_id}') AND time > now() - {window_s}s "
+            f'SELECT max("{field}") '
+            f'FROM "{inf["msrmt"]}" '
+            f'WHERE ("sensorID"=$chip_id) AND time > now() - {window_s}s '
         )
-        result: ResultSet = client.query(query)
+        bind_params = {"chip_id": chip_id}
+        result: ResultSet = client.query(query, bind_params=bind_params)
         client.close()
 
         # This effectively returns just the last point
