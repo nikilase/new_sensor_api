@@ -17,5 +17,5 @@ async def home(request: Request):
     print("\n")
     nonce = request.state.nonce
     return templates.TemplateResponse(
-        "root.html", context={"request": request, "nonce": nonce}
+        request, "root.html", {"request": request, "nonce": nonce}
     )
